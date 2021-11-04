@@ -1,12 +1,12 @@
 const request = require("request");
-const args = process.argv.slice(2);
 
-request(
-  `https://api.thecatapi.com/v1/breeds/search?q=${args}`,
-  (err, res, body) => {
+const url = "https://api.thecatapi.com/v1/breeds/search?q=";
+
+const fetchBreedDescription = function(breedname, callback) {
+  request(url + breedname, (err, res, body) => {
     //edge case: if there is an error with request (broken url)
     if (err) {
-      console.log(`Error: Request failed\nError code: ${err.code}`);
+      callback(err.code, null);
       return;
     }
 
@@ -15,12 +15,13 @@ request(
 
     //edge case: if there is an error (no breeds found)
     if (data.length === 0) {
-      console.log("Error: No Breeds found");
+      callback("No Breeds Found", null);
       return;
     }
 
     //Return description for search results
-    console.log("\n------Description------\n");
-    console.log(data[0].description);
-  }
-);
+    callback(null, data[0].description);
+  });
+};
+
+module.exports = { fetchBreedDescription };
